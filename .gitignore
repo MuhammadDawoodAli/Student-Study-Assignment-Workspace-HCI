@@ -18,3 +18,5 @@ yarn-error.log*
 # Scratch or temporary files
 scratch/
 tmp/
+__pycache__/
+*.pyc
