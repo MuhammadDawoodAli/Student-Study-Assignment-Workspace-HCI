@@ -656,3 +656,48 @@ html[data-high-contrast="true"] select:focus-visible {
 .a11y-modal-overlay.open .a11y-modal-content {
   transform: scale(1);
 }
+
+/* Generic Production Modal Overlay (Assignments & Courses) */
+.app-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.app-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.app-modal-content {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border-focus);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.96);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-modal-overlay.open .app-modal-content {
+  transform: scale(1);
+}
+
+/* Cognitive Fatigue Simplification for Assignment Workspace */
+.fatigue-simplified .assignment-secondary-meta {
+  display: none !important;
+}
+
+.fatigue-simplified .assignment-focus-btn {
+  padding: 0.65rem 1.15rem !important;
+  font-size: 0.875rem !important;
+}

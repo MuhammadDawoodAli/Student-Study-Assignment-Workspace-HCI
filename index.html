@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusFlow - Adaptive & Persuasive HCI Interface</title>
-  <meta name="description" content="HCI Prototype demonstrating Topic 10 (Context-Aware Interfaces) and Topic 6 (Persuasive Technology).">
+  <title>FocusFlow — Adaptive Student Study Workspace</title>
+  <meta name="description" content="Adaptive Pomodoro timer, course & assignment planner, and circadian study workspace.">
 
-  <!-- Favicon & PWA Metadata (Zero 404 Console Errors) -->
+  <!-- Favicon & PWA Metadata -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="alternate icon" href="favicon.ico">
   <link rel="manifest" href="manifest.json">
@@ -49,15 +49,18 @@
     }
   </script>
 
+  <!-- Supabase JS v2 SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <!-- Custom Circadian Glassmorphic Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="relative flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body class="relative flex flex-col justify-between selection:bg-indigo-500 selection:text-white min-h-screen">
 
-  <!-- Accessible Skip to Main Content Link (WCAG 2.1 AAA) -->
+  <!-- Accessible Skip to Main Content Link -->
   <a href="#main-content" class="skip-link" id="skip-to-content-link">Skip to main content (Press Enter)</a>
 
-  <!-- ARIA Live Regions for Screen Reader Audio Announcements -->
+  <!-- ARIA Live Regions -->
   <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
   <div id="sr-alert" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
@@ -70,9 +73,9 @@
 
   <!-- App Header & Navigation Bar -->
   <header role="banner" class="sticky top-0 z-40 border-b border-white/10 glass-panel">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-18 py-3 flex items-center justify-between gap-4">
-      
-      <!-- Brand Logo & HCI Topic Tag -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+
+      <!-- Brand Logo -->
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-sky-400 p-[2px] shadow-lg shadow-indigo-500/25">
           <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-black text-xl text-white tracking-wider">
@@ -82,118 +85,225 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="font-bold text-lg tracking-tight text-white">FocusFlow</span>
-            <span class="px-2 py-0.5 text-[10px] uppercase font-semibold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">HCI Prototype</span>
           </div>
-          <div class="text-[11px] text-slate-400 hidden sm:block">Topics 6 & 10: Adaptive Context & Behavioral Nudges</div>
+          <div class="text-[11px] text-slate-400 hidden sm:block">Student Study &amp; Assignment Workspace</div>
         </div>
       </div>
 
-      <!-- Controls & Accessibility Toolbar -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        
-        <!-- Detected Context Status Badge -->
+      <!-- Controls, Soundscapes, Accessibility & Account -->
+      <div class="flex items-center gap-1.5 sm:gap-2 relative">
+
+        <!-- Active Circadian Mode Badge -->
         <div class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-card text-xs font-medium text-slate-300 border border-white/10">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span id="active-context-badge">⚡ Peak Afternoon</span>
         </div>
 
-        <!-- Manual Context Override Switcher (Instructor Evaluation Tool) -->
-        <div class="flex items-center gap-1 glass-card px-2 py-1 rounded-lg border border-white/10" title="Manually override context to test interface adaptations">
-          <label for="context-override-select" class="text-xs text-slate-400 hidden xl:inline">Context:</label>
-          <select id="context-override-select" aria-label="Circadian Context Override Mode" class="bg-transparent text-xs text-slate-200 border-none outline-none cursor-pointer focus:ring-0">
-            <option value="auto" class="bg-slate-900 text-slate-200">Auto (Circadian Clock)</option>
-            <option value="morning" class="bg-slate-900 text-sky-400">🌅 Morning (High Alert)</option>
-            <option value="afternoon" class="bg-slate-900 text-indigo-400">⚡ Afternoon (Flow)</option>
-            <option value="night" class="bg-slate-900 text-amber-400">🌙 Night (Melatonin Guard)</option>
+        <!-- Adaptive Theme Selector -->
+        <div class="flex items-center gap-1 glass-card px-2 py-1 rounded-lg border border-white/10" title="Adaptive circadian theme">
+          <label for="context-override-select" class="text-xs text-slate-400 hidden xl:inline">Theme:</label>
+          <select id="context-override-select" aria-label="Adaptive Theme Mode" class="bg-transparent text-xs text-slate-200 border-none outline-none cursor-pointer focus:ring-0">
+            <option value="auto" class="bg-slate-900 text-slate-200">Auto (Solar)</option>
+            <option value="morning" class="bg-slate-900 text-sky-400">🌅 Morning</option>
+            <option value="afternoon" class="bg-slate-900 text-indigo-400">⚡ Afternoon</option>
+            <option value="night" class="bg-slate-900 text-amber-400">🌙 Night</option>
           </select>
         </div>
 
-        <!-- Universal Accessibility Toolbar Cluster -->
-        <div class="flex items-center gap-1 p-1 rounded-xl glass-card border border-white/10" role="toolbar" aria-label="Accessibility & Voice Controls">
-          
-          <!-- Hands-Free Voice Control Toggle (Web Speech API) -->
-          <button id="voice-toggle-btn" class="p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1.5 transition-all" title="Toggle Hands-Free Voice Control (Press V)" aria-label="Toggle Hands-Free Voice Control" aria-pressed="false">
+        <!-- Soundscape Mixer Popover Trigger -->
+        <div class="relative">
+          <button id="ambient-popover-btn" class="p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1.5" title="Focus Soundscapes &amp; Volume" aria-label="Focus Soundscapes" aria-expanded="false">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+            <span id="ambient-sound-status" class="text-xs hidden md:inline">Soundscapes</span>
+          </button>
+
+          <!-- Soundscape Popover Panel -->
+          <div id="soundscape-popover" class="hidden absolute right-0 mt-2 w-72 rounded-2xl glass-panel border border-white/15 p-4 shadow-2xl z-50 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Focus Soundscapes</span>
+              <button id="ambient-sound-btn" class="px-2.5 py-1 rounded-lg glass-pill text-[11px] font-semibold text-sky-300">
+                Play / Pause
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill active border-emerald-400 text-xs font-semibold text-center" data-soundscape="rain">
+                🌧️ Rain Focus
+              </button>
+              <button class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill opacity-70 text-xs font-semibold text-center" data-soundscape="binaural">
+                🧠 40Hz Gamma
+              </button>
+              <button class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill opacity-70 text-xs font-semibold text-center" data-soundscape="whitenoise">
+                📻 White Noise
+              </button>
+              <button class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill opacity-70 text-xs font-semibold text-center" data-soundscape="waves">
+                🌊 Ocean Surf
+              </button>
+            </div>
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span>Intensity</span>
+                <span id="ambient-vol-label" class="text-emerald-300 font-mono">35%</span>
+              </div>
+              <input type="range" id="ambient-volume-slider" min="0" max="100" value="35" aria-label="Ambient sound intensity" class="w-full accent-emerald-400 cursor-pointer">
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility Toolbar Cluster -->
+        <div class="flex items-center gap-1 p-1 rounded-xl glass-card border border-white/10" role="toolbar" aria-label="Accessibility &amp; Voice Controls">
+          <button id="voice-toggle-btn" class="p-1.5 sm:p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1 transition-all" title="Voice Control (Press V)" aria-label="Toggle Voice Control" aria-pressed="false">
             <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
-            <span class="text-xs hidden md:inline">Voice</span>
           </button>
 
-          <!-- High Contrast Mode Toggle (WCAG AAA 7:1+) -->
-          <button id="contrast-toggle-btn" class="p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1.5 transition-all" title="Toggle WCAG AAA High Contrast (Press C)" aria-label="Toggle High Contrast Mode" aria-pressed="false">
+          <button id="contrast-toggle-btn" class="p-1.5 sm:p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1 transition-all" title="High Contrast Mode (Press C)" aria-label="Toggle High Contrast Mode" aria-pressed="false">
             <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
-            <span class="text-xs hidden md:inline">Contrast</span>
           </button>
 
-          <!-- Dynamic Font Scaling Toggle -->
-          <button id="font-scale-btn" class="p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1 transition-all" title="Cycle Font Size: 100% / 125% / 150% (Press F)" aria-label="Cycle Font Size">
+          <button id="font-scale-btn" class="p-1.5 sm:p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1 transition-all" title="Cycle Font Size (Press F)" aria-label="Cycle Font Size">
             <span class="font-bold text-xs">A<sup class="text-[9px]">+</sup></span>
-            <span id="font-scale-text" class="text-xs hidden md:inline">100%</span>
+            <span id="font-scale-text" class="text-[11px] hidden xl:inline">100%</span>
           </button>
 
-          <!-- Accessibility & Voice Help Button -->
-          <button id="a11y-help-btn" class="p-2 rounded-lg glass-pill text-slate-300 hover:text-white flex items-center gap-1 transition-all font-bold text-xs" title="Accessibility & Voice Command Guide (Press ?)" aria-label="Accessibility and Voice Commands Guide">
+          <button id="a11y-help-btn" class="p-1.5 sm:p-2 rounded-lg glass-pill text-slate-300 hover:text-white font-bold text-xs" title="Accessibility &amp; Shortcuts (Press ?)" aria-label="Accessibility Guide">
             <span class="font-mono">?</span>
           </button>
-
         </div>
 
-        <!-- Audio Mute Toggle Button -->
+        <!-- Audio Mute Toggle -->
         <button id="audio-mute-btn" class="p-2 rounded-lg glass-pill text-slate-300 hover:text-white" title="Toggle audio cues (Press M)" aria-label="Toggle Audio">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
           </svg>
         </button>
 
-        <!-- Ambient Sound Toggle (Focus Rain/White Noise) -->
-        <button id="ambient-sound-btn" class="p-2 rounded-lg glass-pill text-slate-300 hover:text-white hidden sm:flex items-center gap-1.5" title="Toggle Acoustic Masking (Rain sound)" aria-label="Toggle Ambient Rain">
-          <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
-          </svg>
-          <span id="ambient-sound-status" class="text-xs">Focus Noise</span>
-        </button>
-
-        <!-- Teacher Inspector Trigger Button (Primary Callout) -->
-        <button id="open-inspector-btn" aria-haspopup="dialog" aria-controls="hci-inspector-drawer" class="relative group flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white font-medium text-xs shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105 active:scale-95 transition-all">
-          <span class="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span>
-          <span>🔬 HCI Inspector</span>
-          <span class="hidden md:inline text-[10px] bg-black/30 px-1.5 py-0.5 rounded font-mono text-indigo-200">I</span>
-        </button>
+        <!-- Authenticated User Pill -->
+        <div id="user-account-bar" class="hidden items-center gap-2 pl-2 border-l border-white/10">
+          <div class="hidden sm:flex flex-col text-right">
+            <span id="user-display-name" class="text-xs font-semibold text-white leading-tight max-w-[120px] truncate">Student</span>
+            <span class="text-[10px] text-emerald-400">Synced</span>
+          </div>
+          <button id="sign-out-btn" class="px-2.5 py-1.5 rounded-lg glass-pill text-xs font-medium text-slate-300 hover:text-rose-300 transition-all" title="Sign Out">
+            Sign Out
+          </button>
+        </div>
 
       </div>
     </div>
   </header>
 
-  <!-- Live Voice Recognition Status Floating Banner -->
+  <!-- Live Voice Recognition Floating Banner -->
   <div id="voice-live-badge" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-slate-950/95 border-2 border-rose-500 text-rose-200 text-xs font-medium flex items-center gap-3 shadow-2xl backdrop-blur-xl" role="status" aria-live="polite">
     <span class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
     <span id="voice-status-text" class="font-bold text-rose-300">Listening...</span>
     <span id="voice-transcript" class="text-slate-300 font-mono italic max-w-[240px] truncate">Say "start focus", "pause", or "help"</span>
   </div>
 
-  <!-- Main Interaction Area -->
-  <main id="main-content" role="main" tabindex="-1" class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col items-center gap-8 w-full outline-none">
+  <!-- ======================================================================
+       AUTHENTICATION VIEW (Shown when signed out)
+       ====================================================================== -->
+  <section id="auth-section" class="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md glass-panel rounded-3xl p-6 sm:p-8 space-y-6 border border-white/15">
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-sky-400 text-white font-black text-2xl shadow-lg shadow-indigo-500/30">
+          F
+        </div>
+        <h1 class="text-2xl font-extrabold text-white tracking-tight">Welcome to FocusFlow</h1>
+        <p class="text-xs sm:text-sm text-slate-300">Sign in to sync your courses, assignments, study streaks, and focus sessions.</p>
+      </div>
 
-    <!-- Adaptive Circadian Greeting Banner (Topic 10 Dynamic UI) -->
+      <!-- Supabase Config Warning Banner (shown only if js/config.js has placeholders) -->
+      <div id="supabase-config-warning" class="hidden p-3.5 rounded-xl bg-amber-500/15 border border-amber-400/30 text-xs text-amber-200 space-y-1">
+        <strong class="block text-amber-300">Database Not Connected Yet</strong>
+        <span>Add your Supabase Project URL and Anon Key in <code class="px-1 py-0.5 rounded bg-black/40 text-amber-300">js/config.js</code> (see <code class="px-1 py-0.5 rounded bg-black/40 text-amber-300">SUPABASE_SETUP.md</code>).</span>
+      </div>
+
+      <!-- Auth Tabs -->
+      <div class="grid grid-cols-2 gap-1 p-1 rounded-xl bg-black/30 border border-white/10">
+        <button id="auth-tab-signin" type="button" class="py-2 text-xs font-semibold rounded-lg glass-pill active text-white">Sign In</button>
+        <button id="auth-tab-signup" type="button" class="py-2 text-xs font-semibold rounded-lg glass-pill text-slate-300 opacity-75">Create Account</button>
+      </div>
+
+      <!-- Error / Info Alert -->
+      <div id="auth-feedback" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+
+      <!-- Email / Password Form -->
+      <form id="auth-form" class="space-y-4">
+        <div id="auth-name-wrap" class="hidden space-y-1">
+          <label for="auth-fullname" class="block text-xs font-medium text-slate-300">Full Name</label>
+          <input id="auth-fullname" type="text" placeholder="e.g. Ayesha Khan" class="w-full px-3.5 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+        </div>
+
+        <div class="space-y-1">
+          <label for="auth-email" class="block text-xs font-medium text-slate-300">Email Address</label>
+          <input id="auth-email" type="email" required placeholder="student@university.edu" class="w-full px-3.5 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+        </div>
+
+        <div class="space-y-1">
+          <label for="auth-password" class="block text-xs font-medium text-slate-300">Password</label>
+          <input id="auth-password" type="password" required minlength="6" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+        </div>
+
+        <button id="auth-submit-btn" type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 transition-all">
+          Sign In
+        </button>
+      </form>
+
+      <div class="relative flex items-center justify-center">
+        <div class="border-t border-white/10 w-full"></div>
+        <span class="px-3 text-[11px] uppercase tracking-wider text-slate-400 bg-transparent">or</span>
+        <div class="border-t border-white/10 w-full"></div>
+      </div>
+
+      <!-- Google OAuth Button -->
+      <button id="google-signin-btn" type="button" class="w-full py-2.5 px-4 rounded-xl glass-card border border-white/15 hover:border-white/30 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all">
+        <svg class="w-4 h-4" viewBox="0 0 24 24">
+          <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/>
+          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/>
+          <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.8z"/>
+          <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 21.4 7.4 24 12 24z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       MAIN AUTHENTICATED WORKSPACE
+       ====================================================================== -->
+  <main id="main-content" role="main" tabindex="-1" class="hidden relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col items-center gap-8 w-full outline-none">
+
+    <!-- Adaptive Circadian Greeting Banner -->
     <div class="text-center max-w-2xl">
       <div id="layout-complexity-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-white/5 border border-white/10 text-slate-300 mb-2">
-        Balanced (Deep Execution)
+        Deep Study Mode
       </div>
       <h1 id="context-greeting" class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2 transition-all">
-        Good Afternoon! Primed for High Focus
+        Afternoon Flow State
       </h1>
       <p id="context-subtitle" class="text-sm sm:text-base text-slate-300 transition-all">
-        Circadian engine detected peak executive function. High-contrast theme active.
+        Balanced deep study workspace. Pick an assignment below and start your sprint.
       </p>
     </div>
 
-    <!-- Central Focus Hub & Glassmorphic Pomodoro Engine -->
-    <div class="w-full max-w-md glass-panel rounded-3xl p-6 sm:p-8 flex flex-col items-center gap-6 relative overflow-hidden">
+    <!-- Central Focus Hub & Pomodoro Timer -->
+    <div class="w-full max-w-md glass-panel rounded-3xl p-6 sm:p-8 flex flex-col items-center gap-5 relative overflow-hidden">
 
-      <!-- Mode Selector (Focus, Short Break, Long Break) -->
+      <!-- Active Assignment Selector -->
+      <div class="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-black/30 border border-white/10">
+        <span class="text-xs text-slate-400 whitespace-nowrap">Focusing on:</span>
+        <select id="active-assignment-select" aria-label="Select assignment for focus session" class="flex-1 bg-transparent text-xs font-semibold text-white border-none outline-none cursor-pointer truncate">
+          <option value="" class="bg-slate-900 text-slate-300">General Study Session (Unlinked)</option>
+        </select>
+      </div>
+
+      <!-- Mode Selector -->
       <div class="grid grid-cols-3 gap-2 w-full p-1 rounded-xl bg-black/30 border border-white/10" role="tablist">
         <button id="mode-focus-btn" class="py-2 text-xs sm:text-sm font-semibold rounded-lg glass-pill active transition-all text-center" role="tab" aria-selected="true">
           Focus (25m)
@@ -206,8 +316,8 @@
         </button>
       </div>
 
-      <!-- Circular SVG Progress Ring with Ambient Center Display -->
-      <div id="timer-circle-wrap" class="timer-circle-container w-[270px] h-[270px] sm:w-[310px] sm:h-[310px] rounded-full p-2">
+      <!-- Circular SVG Progress Ring -->
+      <div id="timer-circle-wrap" class="timer-circle-container w-[260px] h-[260px] sm:w-[300px] sm:h-[300px] rounded-full p-2">
         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 320 320">
           <defs>
             <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -215,18 +325,15 @@
               <stop offset="100%" stop-color="var(--ring-gradient-end)" />
             </linearGradient>
           </defs>
-          <!-- Background circle track -->
           <circle cx="160" cy="160" r="130" stroke-width="12" fill="none" class="timer-ring-bg" />
-          <!-- Animated progress circle -->
           <circle id="timer-progress-ring" cx="160" cy="160" r="130" stroke-width="12" fill="none" stroke="url(#ringGradient)" stroke-linecap="round" class="timer-ring-progress" />
         </svg>
 
-        <!-- Digital Timer Readout & Micro-Instructions -->
         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span id="timer-display" class="text-5xl sm:text-6xl font-black tracking-tight text-white font-mono drop-shadow-md">
             25:00
           </span>
-          <span class="text-xs font-bold uppercase tracking-widest text-indigo-300 mt-1">
+          <span id="timer-mode-label" class="text-xs font-bold uppercase tracking-widest text-indigo-300 mt-1">
             Focus Sprint
           </span>
           <span class="text-[10px] text-slate-400 mt-2 font-mono hidden sm:inline">
@@ -235,17 +342,14 @@
         </div>
       </div>
 
-      <!-- Tactile Primary Timer Controls -->
+      <!-- Tactile Timer Controls -->
       <div class="flex items-center gap-3 w-full justify-center">
-        
-        <!-- Reset Button -->
         <button id="reset-btn" class="p-3.5 rounded-2xl glass-card text-slate-300 hover:text-white hover:border-slate-400 transition-all active:scale-90" title="Reset Session (Press R)" aria-label="Reset Timer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </button>
 
-        <!-- Start / Pause Button (Hero Interactive Action) -->
         <button id="start-pause-btn" class="flex-1 max-w-[210px] py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-base shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
           <span id="start-pause-icon">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,396 +359,312 @@
           <span id="start-pause-text">Start Focus</span>
         </button>
 
-        <!-- Skip to Next Cycle Button -->
-        <button id="skip-btn" class="p-3.5 rounded-2xl glass-card text-slate-300 hover:text-white hover:border-slate-400 transition-all active:scale-90" title="Skip Session (Press S)" aria-label="Skip to Next Cycle">
+        <button id="skip-btn" class="p-3.5 rounded-2xl glass-card text-slate-300 hover:text-white hover:border-slate-400 transition-all active:scale-90" title="Complete &amp; Log Session (Press S)" aria-label="Complete and Log Cycle">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
         </button>
-
       </div>
 
-      <!-- Gamified Habit Tracking Bar (Topic 6 Persuasive Reinforcement) -->
+      <!-- Persistent Habit & Daily Goal Progress Bar -->
       <div class="w-full pt-4 border-t border-white/10 flex flex-col gap-3">
         <div class="flex items-center justify-between text-xs font-medium text-slate-300">
           <div class="flex items-center gap-1.5">
             <span class="streak-flame text-base">🔥</span>
-            <span>Streak: <strong id="streak-count-value" class="text-white text-sm">3</strong> Days</span>
+            <span>Streak: <strong id="streak-count-value" class="text-white text-sm">0</strong> Days</span>
           </div>
-          <div>
-            <span>Daily Goal: <span id="daily-goal-ratio" class="text-indigo-300">2/4 completed (50%)</span></span>
+          <div class="flex items-center gap-1.5">
+            <span>Goal: <span id="daily-goal-ratio" class="text-indigo-300">0/4 (0%)</span></span>
+            <button id="edit-daily-goal-btn" class="text-[10px] px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 text-slate-300" title="Adjust Daily Study Goal">Edit</button>
           </div>
         </div>
         <div class="flex items-center justify-between text-[11px] text-slate-400">
-          <span>Sessions Today: <strong id="sessions-today-value" class="text-slate-200">2</strong></span>
-          <span>Focus Time: <strong id="total-minutes-value" class="text-slate-200">50m</strong></span>
+          <span>Sessions Today: <strong id="sessions-today-value" class="text-slate-200">0</strong></span>
+          <span>Study Time: <strong id="total-minutes-value" class="text-slate-200">0m</strong></span>
         </div>
-        <!-- Progress Bar (Goal-Gradient Effect) -->
         <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden border border-white/5">
-          <div id="daily-goal-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-700" style="width: 50%;"></div>
+          <div id="daily-goal-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-700" style="width: 0%;"></div>
         </div>
       </div>
 
     </div>
 
-    <!-- Supplementary Feature: Interactive Cognitive Load & Fatigue Self-Check -->
+    <!-- Energy & Cognitive Load Self-Check -->
     <div class="w-full max-w-4xl glass-card rounded-2xl p-5 border border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-1">
           <span class="text-amber-400 text-sm">⚡</span>
-          <h2 class="text-sm font-bold text-white tracking-wide">Cognitive Load & Fatigue Diagnostic</h2>
+          <h2 class="text-sm font-bold text-white tracking-wide">Current Energy &amp; Focus Level</h2>
         </div>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Self-report your current mental strain to let the Context Engine dynamically tune interface complexity.
+          Select how you feel right now so FocusFlow can adapt workspace density and visual comfort.
         </p>
       </div>
 
-      <!-- 3-State Fatigue Selector -->
       <div class="flex items-center gap-2.5 w-full md:w-auto flex-shrink-0">
-        <button class="fatigue-option-btn flex-1 md:flex-initial px-4 py-2 text-xs font-semibold rounded-xl glass-pill transition-all whitespace-nowrap text-center" data-fatigue="low" title="High alertness, ready for multi-tasking">
+        <button class="fatigue-option-btn flex-1 md:flex-initial px-4 py-2 text-xs font-semibold rounded-xl glass-pill transition-all whitespace-nowrap text-center" data-fatigue="low">
           🌱 Sharp
         </button>
-        <button class="fatigue-option-btn flex-1 md:flex-initial px-4 py-2 text-xs font-semibold rounded-xl glass-pill active ring-2 ring-amber-400 transition-all whitespace-nowrap text-center" data-fatigue="normal" title="Standard balanced state">
+        <button class="fatigue-option-btn flex-1 md:flex-initial px-4 py-2 text-xs font-semibold rounded-xl glass-pill active ring-2 ring-amber-400 transition-all whitespace-nowrap text-center" data-fatigue="normal">
           ⚡ Normal
         </button>
-        <button class="fatigue-option-btn flex-1 md:flex-initial px-4 py-2 text-xs font-semibold rounded-xl glass-pill transition-all whitespace-nowrap text-center" data-fatigue="high" title="Fatigued: Triggers sensory reduction and large touch targets">
+        <button class="fatigue-option-btn flex-1 md:flex-initial px-4 py-2 text-xs font-semibold rounded-xl glass-pill transition-all whitespace-nowrap text-center" data-fatigue="high">
           🥱 Fatigued
         </button>
       </div>
     </div>
 
-    <!-- Adaptive Contextual Cards (Dynamic UI Layout Complexity - Topic 10) -->
+    <!-- Adaptive Circadian Workspace Panels (DB-Backed) -->
     <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-4">
 
-      <!-- MORNING CARD: High Information Density (Goal Planning) -->
-      <div class="context-card-morning hidden glass-card rounded-2xl p-5 border border-sky-500/20 md:col-span-3">
-        <div class="flex items-center gap-2 mb-2 text-sky-400 font-bold text-sm">
-          <span>🌅 Morning Intentions (High Density Layout)</span>
+      <!-- MORNING PANEL: Priority Queue & Daily Goal -->
+      <div class="context-card-morning hidden glass-card rounded-2xl p-5 border border-sky-500/20 md:col-span-3 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-sky-400 font-bold text-sm">
+            <span>🌅 Morning Priority Queue</span>
+          </div>
+          <span class="text-[11px] text-slate-400">Top upcoming &amp; high-priority assignments</span>
         </div>
-        <p class="text-xs text-slate-300 mb-3">
-          Executive function is peaking. The interface has expanded its information density to assist with task prioritization.
-        </p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <label class="flex items-center gap-2 p-2.5 rounded-xl bg-black/20 text-xs text-slate-200 cursor-pointer hover:bg-black/30">
-            <input type="checkbox" checked class="rounded text-sky-500">
-            <span>Tackle highest cognitive task</span>
-          </label>
-          <label class="flex items-center gap-2 p-2.5 rounded-xl bg-black/20 text-xs text-slate-200 cursor-pointer hover:bg-black/30">
-            <input type="checkbox" checked class="rounded text-sky-500">
-            <span>Hydrate before second coffee</span>
-          </label>
-          <label class="flex items-center gap-2 p-2.5 rounded-xl bg-black/20 text-xs text-slate-200 cursor-pointer hover:bg-black/30">
-            <input type="checkbox" class="rounded text-sky-500">
-            <span>Clear academic inbox</span>
-          </label>
+        <div id="morning-priority-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+          <!-- Populated from PostgreSQL -->
         </div>
       </div>
 
-      <!-- AFTERNOON CARDS: Balanced Focus Execution -->
-      <div class="context-card-afternoon glass-card rounded-2xl p-5 border border-indigo-500/20">
-        <div class="flex items-center gap-2 text-indigo-400 font-bold text-sm mb-1">
-          <span>⚡ Deep Flow State</span>
+      <!-- AFTERNOON PANELS: Active Spotlight + Today's Session Log -->
+      <div class="context-card-afternoon glass-card rounded-2xl p-5 border border-indigo-500/20 space-y-2">
+        <div class="flex items-center gap-2 text-indigo-400 font-bold text-sm">
+          <span>🎯 Active Assignment</span>
         </div>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Balanced layout active. Extraneous alerts are suppressed to protect the 25-minute attention span.
-        </p>
+        <div id="afternoon-active-spotlight" class="text-xs text-slate-300 leading-relaxed">
+          Select an assignment in the timer above to track your Pomodoro sprints against it.
+        </div>
       </div>
 
-      <div class="context-card-afternoon glass-card rounded-2xl p-5 border border-purple-500/20">
-        <div class="flex items-center gap-2 text-purple-400 font-bold text-sm mb-1">
-          <span>💧 Posture & Hydration</span>
+      <div class="context-card-afternoon glass-card rounded-2xl p-5 border border-purple-500/20 md:col-span-2 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-purple-400 font-bold text-sm">
+            <span>⏱️ Today's Study Log</span>
+          </div>
+          <span id="today-log-count" class="text-[11px] text-slate-400">0 sessions</span>
         </div>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Afternoon slump mitigation: Align cervical spine and drink 250ml water between Pomodoro intervals.
-        </p>
+        <div id="afternoon-session-log" class="space-y-1.5 max-h-28 overflow-y-auto text-xs text-slate-300">
+          <!-- Populated from focus_sessions -->
+        </div>
       </div>
 
-      <div class="context-card-afternoon glass-card rounded-2xl p-5 border border-sky-500/20">
-        <div class="flex items-center gap-2 text-sky-400 font-bold text-sm mb-1">
-          <span>🛡️ Commitment Device</span>
+      <!-- NIGHT / HIGH FATIGUE PANEL: Minimalist Wrap-Up -->
+      <div class="context-card-night hidden glass-card rounded-2xl p-5 border border-amber-500/20 md:col-span-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <span>🌙 Calm Study Summary</span>
+          </div>
+          <span class="text-[11px] text-amber-200/70">Low-clutter view active</span>
         </div>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          You are committed to 4 sessions today. Completing this one secures a 3-day consecutive focus streak.
+        <p id="night-summary-text" class="text-xs text-amber-100/90 leading-relaxed">
+          Loading today's summary...
         </p>
-      </div>
-
-      <!-- NIGHT / HIGH FATIGUE CARDS: Minimalist Cognitive Relief -->
-      <div class="context-card-night hidden glass-card rounded-2xl p-5 border border-amber-500/20 md:col-span-3">
-        <div class="flex items-center gap-2 text-amber-400 font-bold text-sm mb-2">
-          <span>🌙 Circadian Melatonin Guard (Low Cognitive Load Layout)</span>
-        </div>
-        <p class="text-xs text-amber-200/90 leading-relaxed mb-3">
-          The interface has stripped away non-essential clutter and lowered luminance contrast. Warm amber tones preserve natural melatonin synthesis and reduce ocular fatigue before sleep.
-        </p>
-        <div class="p-3 rounded-xl bg-amber-950/40 border border-amber-500/20 text-xs text-amber-300">
-          💡 <strong>HCI Principle in Action:</strong> Sweller's Cognitive Load Theory dictates that fatigued operators experience decision paralysis. FocusFlow minimizes inputs to just one primary timer action.
-        </div>
       </div>
 
     </div>
 
+    <!-- ====================================================================
+         STUDENT COURSES & ASSIGNMENTS WORKSPACE (FULL CRUD)
+         ==================================================================== -->
+    <section id="assignments-workspace-section" class="w-full max-w-4xl glass-panel rounded-3xl p-5 sm:p-7 border border-white/10 space-y-5">
+
+      <!-- Workspace Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight">Assignments &amp; Courses</h2>
+          <p class="text-xs text-slate-400">Organize coursework, set Pomodoro estimates, and log real study progress.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="open-course-modal-btn" class="px-3.5 py-2 rounded-xl glass-card border border-white/15 hover:border-white/30 text-xs font-semibold text-slate-200 transition-all">
+            + Courses
+          </button>
+          <button id="open-assignment-modal-btn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-xs font-bold text-white shadow-lg shadow-indigo-500/25 transition-all">
+            + New Assignment
+          </button>
+        </div>
+      </div>
+
+      <!-- Course Filter Pills -->
+      <div id="course-filter-bar" class="assignment-secondary-meta flex items-center gap-2 flex-wrap">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Search & Status Filter Bar -->
+      <div class="assignment-secondary-meta flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <input id="assignment-search-input" type="search" placeholder="Search assignments..." class="flex-1 px-3.5 py-2 rounded-xl bg-black/30 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+        <select id="assignment-status-filter" aria-label="Filter by status" class="px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-xs text-slate-200 focus:outline-none focus:border-indigo-400">
+          <option value="all" class="bg-slate-900">All Statuses</option>
+          <option value="todo" class="bg-slate-900">To Do</option>
+          <option value="in_progress" class="bg-slate-900">In Progress</option>
+          <option value="completed" class="bg-slate-900">Completed</option>
+        </select>
+      </div>
+
+      <!-- Assignments List -->
+      <div id="assignments-list" class="space-y-3">
+        <!-- Populated dynamically from Supabase -->
+      </div>
+
+    </section>
+
   </main>
 
-  <!-- Footer with Academic Project Metadata -->
-  <footer class="relative z-10 border-t border-white/10 glass-panel py-6 text-center text-xs text-slate-400">
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-white/10 glass-panel py-5 text-center text-xs text-slate-400">
     <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div>
-        <strong class="text-white">FocusFlow</strong> &mdash; Human-Computer Interaction (HCI) Academic Project
+        <strong class="text-white">FocusFlow</strong> &mdash; Adaptive Student Study Workspace
       </div>
       <div class="flex items-center gap-2 font-mono text-[11px] text-slate-400">
         <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10">Space: Start/Pause</span>
         <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10">R: Reset</span>
-        <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10">I: Inspector</span>
+        <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10">?: Accessibility</span>
       </div>
     </div>
   </footer>
 
   <!-- ======================================================================
-       HCI CONCEPT INSPECTOR (TEACHER EVALUATION SLIDE-OVER DRAWER)
-       Requested Feature #1: Detailed Theoretical Breakdown & Live Telemetry
-       ====================================================================== -->
-  <div id="drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
-
-  <aside id="hci-inspector-drawer" class="inspector-drawer" aria-label="HCI Concept Inspector Panel">
-    
-    <!-- Drawer Top Header -->
-    <div class="p-5 border-b border-white/10 flex items-center justify-between bg-black/40">
-      <div class="flex items-center gap-2">
-        <span class="text-xl">🔬</span>
-        <div>
-          <h2 class="text-sm font-bold text-white tracking-wide">HCI Concept Inspector</h2>
-          <div class="text-[11px] text-slate-400">Teacher Evaluation & Telemetry Console</div>
-        </div>
-      </div>
-      <button id="close-inspector-btn" class="p-2 rounded-lg glass-pill text-slate-400 hover:text-white" aria-label="Close Inspector">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Drawer Scrollable Content -->
-    <div class="flex-1 overflow-y-auto p-5 space-y-6">
-
-      <!-- SECTION 1: TOPIC 10 - Context-Aware & Adaptive Telemetry -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
-            <span>🌐</span> Topic 10: Context Adaptation
-          </h3>
-          <span class="text-[10px] bg-sky-500/20 text-sky-300 border border-sky-400/30 px-2 py-0.5 rounded font-mono">Live Sensor</span>
-        </div>
-
-        <div class="telemetry-code space-y-1.5 text-xs">
-          <div><span class="text-slate-400">Detected Context:</span> <span id="tel-detected-context" class="text-sky-300 font-bold">AFTERNOON</span></div>
-          <div><span class="text-slate-400">Detection Method:</span> <span id="tel-override-mode" class="text-emerald-400">Automatic (Circadian Clock)</span></div>
-          <div><span class="text-slate-400">Color Spectrum:</span> <span id="tel-color-spectrum" class="text-slate-200">580nm - 620nm (Indigo/Violet)</span></div>
-          <div><span class="text-slate-400">Contrast Ratio:</span> <span id="tel-contrast-ratio" class="text-slate-200">10.8:1 (Standard Dark)</span></div>
-          <div><span class="text-slate-400">Blue-Light Shield:</span> <span id="tel-bluelight" class="text-slate-200">Inactive</span></div>
-          <div><span class="text-slate-400">Cognitive Load Target:</span> <span id="tel-cognitive-load" class="text-amber-300">Moderate (Execution)</span></div>
-        </div>
-
-        <div class="p-3 rounded-xl bg-sky-950/30 border border-sky-500/20 text-xs">
-          <strong class="text-sky-300 block mb-1">Theoretical Rationale:</strong>
-          <p id="tel-context-rationale" class="text-slate-300 text-[11px] leading-relaxed">
-            Circadian Ergonomics (van Bommel): Lighting and color wavelength directly modulate dopamine and alertness. High contrast in the morning fosters focus; warm amber at night inhibits optical strain.
-          </p>
-        </div>
-      </div>
-
-      <!-- SECTION 2: TOPIC 6 - Persuasive Technology & Nudge Theory -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
-            <span>🎯</span> Topic 6: Persuasive Mechanics
-          </h3>
-          <span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-400/30 px-2 py-0.5 rounded font-mono">Behavioral</span>
-        </div>
-
-        <div class="telemetry-code space-y-1.5 text-xs">
-          <div><span class="text-slate-400">Active Principle:</span> <span id="tel-persuasive-principle" class="text-purple-300 font-bold">Default Architecture</span></div>
-          <div><span class="text-slate-400">Underlying Model:</span> <span id="tel-persuasive-theory" class="text-pink-300">Thaler & Sunstein Nudge Theory</span></div>
-          <div><span class="text-slate-400">Psychological Driver:</span> <span id="tel-persuasive-desc" class="text-slate-200">Pre-selected optimal 25/5 cadence removes decision paralysis.</span></div>
-          <div><span class="text-slate-400">Gamified Reinforcement:</span> <span id="tel-gamification-streak" class="text-amber-300">3 Days Active</span></div>
-        </div>
-
-        <!-- Academic Theory Cards for Presentation -->
-        <div class="grid grid-cols-2 gap-2 text-[11px]">
-          <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">
-            <span class="font-bold text-indigo-300 block">BJ Fogg Model</span>
-            <span class="text-slate-400">Behavior = Motivation &times; Ability &times; Prompt (B=MAP)</span>
-          </div>
-          <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">
-            <span class="font-bold text-purple-300 block">Cialdini Social Proof</span>
-            <span class="text-slate-400">87% normative comparison triggers compliance</span>
-          </div>
-          <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">
-            <span class="font-bold text-amber-300 block">Loss Aversion</span>
-            <span class="text-slate-400">Streak protection leverages fear of losing progress</span>
-          </div>
-          <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">
-            <span class="font-bold text-emerald-300 block">Cognitive Retention</span>
-            <span class="text-slate-400">20% memory gain via structured synaptic rest</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 2.5: ACOUSTIC ERGONOMICS & PROCEDURAL SOUNDSCAPES -->
-      <div class="space-y-3 pt-2 border-t border-white/10">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-            <span>🎧</span> Sensory Ergonomics & Soundscapes
-          </h3>
-          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded font-mono">Synthesizer</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <button id="soundscape-rain-btn" class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill active border-emerald-400 text-xs font-semibold text-center" data-soundscape="rain">
-            🌧️ Rain Focus
-          </button>
-          <button id="soundscape-binaural-btn" class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill opacity-70 text-xs font-semibold text-center" data-soundscape="binaural" title="40Hz Gamma wave binaural auditory stimulation">
-            🧠 40Hz Gamma Wave
-          </button>
-          <button id="soundscape-whitenoise-btn" class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill opacity-70 text-xs font-semibold text-center" data-soundscape="whitenoise">
-            📻 White Noise
-          </button>
-          <button id="soundscape-waves-btn" class="soundscape-option-btn py-2 px-2.5 rounded-lg glass-pill opacity-70 text-xs font-semibold text-center" data-soundscape="waves">
-            🌊 Ocean Surf
-          </button>
-        </div>
-
-        <div class="space-y-1.5 text-xs text-slate-300">
-          <div class="flex items-center justify-between text-[11px] text-slate-400">
-            <span>Soundscape Intensity:</span>
-            <span id="ambient-vol-label" class="text-emerald-300 font-mono">35%</span>
-          </div>
-          <input type="range" id="ambient-volume-slider" min="0" max="100" value="35" aria-label="Ambient sound intensity" class="w-full accent-emerald-400 cursor-pointer">
-        </div>
-      </div>
-
-      <!-- SECTION 3: TEACHER EVALUATION SIMULATION CONTROLS -->
-      <div class="space-y-3 pt-2 border-t border-white/10">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-          <span>⚡</span> Live Demonstration Controls
-        </h3>
-        <p class="text-[11px] text-slate-400">
-          Click these buttons during instructor grading to immediately verify adaptations without waiting:
-        </p>
-
-        <!-- Fast Forward 60x Button -->
-        <button id="demo-warp-timer-btn" class="w-full py-2.5 px-3 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-xs hover:bg-amber-500/30 transition-all flex items-center justify-center gap-2">
-          <span>⚡ Fast-Forward Timer (60x Speed for Demo)</span>
-        </button>
-
-        <!-- Force Context Adaptations -->
-        <div class="grid grid-cols-2 gap-2">
-          <button id="demo-force-morning" class="py-2 px-2.5 rounded-lg bg-sky-500/10 border border-sky-400/30 text-sky-300 text-xs hover:bg-sky-500/20 transition-all">
-            Force Morning Theme
-          </button>
-          <button id="demo-force-afternoon" class="py-2 px-2.5 rounded-lg bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 text-xs hover:bg-indigo-500/20 transition-all">
-            Force Afternoon Theme
-          </button>
-          <button id="demo-force-night" class="py-2 px-2.5 rounded-lg bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs hover:bg-amber-500/20 transition-all">
-            Force Night Theme
-          </button>
-          <button id="demo-force-fatigue" class="py-2 px-2.5 rounded-lg bg-rose-500/10 border border-rose-400/30 text-rose-300 text-xs hover:bg-rose-500/20 transition-all">
-            Force High Fatigue UI
-          </button>
-        </div>
-
-        <!-- Trigger Psychological Nudges Directly -->
-        <div class="grid grid-cols-3 gap-2">
-          <button id="demo-trigger-retention" class="py-1.5 px-2 rounded-lg glass-pill text-[10px] text-slate-300 hover:text-white" title="Trigger Cognitive Retention Modal">
-            Nudge: Retention
-          </button>
-          <button id="demo-trigger-social" class="py-1.5 px-2 rounded-lg glass-pill text-[10px] text-slate-300 hover:text-white" title="Trigger Cialdini Social Proof Modal">
-            Nudge: Social Proof
-          </button>
-          <button id="demo-trigger-loss" class="py-1.5 px-2 rounded-lg glass-pill text-[10px] text-slate-300 hover:text-white" title="Trigger Loss Aversion Toast">
-            Nudge: Streak Alert
-          </button>
-        </div>
-
-        <!-- Increment Streak Simulation -->
-        <button id="demo-add-streak" class="w-full py-2 px-3 rounded-lg bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-semibold hover:bg-purple-500/30 transition-all">
-          🎉 Simulate +1 Streak Milestone (Test Audio & Flame)
-        </button>
-      </div>
-
-      <!-- SECTION 4: LIVE TELEMETRY EVENT LOG -->
-      <div class="space-y-2 pt-2 border-t border-white/10">
-        <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
-          <span>Real-Time Adaptation Log</span>
-          <span class="text-[10px] font-mono text-slate-500">Auto-streaming</span>
-        </div>
-        <div id="inspector-live-log" class="p-3 rounded-xl bg-black/60 border border-white/10 h-32 overflow-y-auto space-y-1">
-          <!-- Populated dynamically by HCIInspector.js -->
-        </div>
-      </div>
-
-    </div>
-
-  </aside>
-
-  <!-- ======================================================================
-       PERSUASIVE PSYCHOLOGICAL MICRO-INTERVENTION MODAL (TOPIC 6)
+       BEHAVIORAL RECOVERY NUDGE MODAL
        ====================================================================== -->
   <div id="nudge-modal-overlay" class="nudge-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="nudge-modal-headline">
     <div class="nudge-modal-content max-w-md w-full rounded-3xl p-6 sm:p-8 flex flex-col gap-4 text-center">
-      
-      <!-- Behavioral Category Badge -->
       <div class="flex justify-center">
-        <span id="nudge-modal-principle" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-          Cognitive Retention Multiplier
+        <span id="nudge-modal-tag" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+          Recovery Break
         </span>
       </div>
-
-      <!-- Modal Headline -->
       <h3 id="nudge-modal-headline" class="text-xl sm:text-2xl font-black text-white tracking-tight">
-        🧠 Cognitive Retention Multiplier
+        Time for a Quick Reset
       </h3>
-
-      <!-- Psychological Fact Body -->
       <p id="nudge-modal-message" class="text-sm text-slate-300 leading-relaxed">
-        Research by the American Psychological Association demonstrates that a brief 5-minute cognitive rest period increases synaptic consolidation and information retention by up to 20%.
+        A short 5-minute break helps consolidate what you studied and keeps your focus sharp.
       </p>
-
-      <!-- Academic Citation -->
-      <div class="p-3 rounded-xl bg-black/30 border border-white/10 text-[11px] text-slate-400 font-mono">
-        Citation: <span id="nudge-modal-citation" class="text-indigo-300">Ebbinghaus Forgetting Curve & Rest Interval Theory</span>
-      </div>
-
-      <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
         <button id="nudge-modal-confirm" class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 transition-all">
-          Begin 5-Min Recovery
+          Start 5-Min Break
         </button>
         <button id="nudge-modal-dismiss" class="w-full sm:w-auto py-3 px-4 rounded-xl glass-pill text-slate-300 hover:text-white text-sm font-medium transition-all">
-          Skip (Extend Focus)
+          Skip Break
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- Ephemeral Toast Container for Nudges -->
+  <!-- ======================================================================
+       CREATE / EDIT ASSIGNMENT MODAL
+       ====================================================================== -->
+  <div id="assignment-modal" class="app-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="assignment-modal-title">
+    <div class="app-modal-content max-w-lg w-full rounded-3xl p-6 sm:p-7 space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <h2 id="assignment-modal-title" class="text-lg font-extrabold text-white">New Assignment</h2>
+        <button id="close-assignment-modal-btn" class="p-2 rounded-lg glass-pill text-slate-400 hover:text-white" aria-label="Close">
+          &times;
+        </button>
+      </div>
+
+      <form id="assignment-form" class="space-y-4">
+        <input type="hidden" id="assignment-id-input">
+
+        <div class="space-y-1">
+          <label for="assignment-title-input" class="block text-xs font-medium text-slate-300">Assignment Title *</label>
+          <input id="assignment-title-input" type="text" required placeholder="e.g. Chapter 4 Literature Review" class="w-full px-3.5 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="assignment-course-input" class="block text-xs font-medium text-slate-300">Course</label>
+            <select id="assignment-course-input" class="w-full px-3 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white focus:outline-none focus:border-indigo-400">
+              <option value="" class="bg-slate-900">No Course</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label for="assignment-priority-input" class="block text-xs font-medium text-slate-300">Priority</label>
+            <select id="assignment-priority-input" class="w-full px-3 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white focus:outline-none focus:border-indigo-400">
+              <option value="high" class="bg-slate-900">High</option>
+              <option value="medium" selected class="bg-slate-900">Medium</option>
+              <option value="low" class="bg-slate-900">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="assignment-due-input" class="block text-xs font-medium text-slate-300">Due Date</label>
+            <input id="assignment-due-input" type="date" class="w-full px-3.5 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white focus:outline-none focus:border-indigo-400">
+          </div>
+
+          <div class="space-y-1">
+            <label for="assignment-est-input" class="block text-xs font-medium text-slate-300">Estimated Pomodoros (25m each)</label>
+            <input id="assignment-est-input" type="number" min="1" max="50" value="2" class="w-full px-3.5 py-2.5 rounded-xl bg-black/30 border border-white/15 text-sm text-white focus:outline-none focus:border-indigo-400">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label for="assignment-notes-input" class="block text-xs font-medium text-slate-300">Notes (Optional)</label>
+          <textarea id="assignment-notes-input" rows="2" placeholder="Key requirements, rubric details..." class="w-full px-3.5 py-2 rounded-xl bg-black/30 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" id="cancel-assignment-modal-btn" class="px-4 py-2.5 rounded-xl glass-pill text-xs font-semibold text-slate-300 hover:text-white">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-xs font-bold text-white shadow-lg">Save Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MANAGE COURSES MODAL
+       ====================================================================== -->
+  <div id="course-modal" class="app-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="course-modal-title">
+    <div class="app-modal-content max-w-md w-full rounded-3xl p-6 sm:p-7 space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <h2 id="course-modal-title" class="text-lg font-extrabold text-white">Manage Courses</h2>
+        <button id="close-course-modal-btn" class="p-2 rounded-lg glass-pill text-slate-400 hover:text-white" aria-label="Close">
+          &times;
+        </button>
+      </div>
+
+      <form id="course-form" class="space-y-3">
+        <div class="grid grid-cols-3 gap-2">
+          <input id="course-code-input" type="text" required maxlength="12" placeholder="CS-301" class="px-3 py-2 rounded-xl bg-black/30 border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+          <input id="course-name-input" type="text" required placeholder="Course Name" class="col-span-2 px-3 py-2 rounded-xl bg-black/30 border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <label class="flex items-center gap-2 text-xs text-slate-300">
+            <span>Badge Color:</span>
+            <input id="course-color-input" type="color" value="#6366f1" class="w-8 h-7 rounded cursor-pointer bg-transparent border-0">
+          </label>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-xs font-bold text-white">Add Course</button>
+        </div>
+      </form>
+
+      <div id="courses-modal-list" class="space-y-2 max-h-56 overflow-y-auto pt-2 border-t border-white/10">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Ephemeral Toast Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
   <!-- ======================================================================
-       ACCESSIBILITY & HANDS-FREE VOICE COMMANDS MODAL (WCAG 2.1 AAA)
+       ACCESSIBILITY & VOICE COMMANDS MODAL
        ====================================================================== -->
   <div id="a11y-help-modal" class="a11y-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="a11y-modal-title" aria-hidden="true">
     <div class="a11y-modal-content max-w-2xl w-full rounded-3xl p-6 sm:p-8 flex flex-col gap-5 text-left border border-white/20">
-      
-      <!-- Modal Header -->
       <div class="flex items-center justify-between pb-3 border-b border-white/10">
         <div class="flex items-center gap-3">
           <span class="text-2xl" aria-hidden="true">♿</span>
           <div>
             <h2 id="a11y-modal-title" class="text-lg sm:text-xl font-black text-white tracking-wide">
-              Universal Accessibility & Voice Control
+              Accessibility &amp; Voice Control
             </h2>
-            <p class="text-xs text-slate-400">WCAG 2.1 AAA Compliant &bull; Hands-Free &bull; Screen Reader Ready</p>
+            <p class="text-xs text-slate-400">Hands-Free Voice Commands &bull; High Contrast &bull; Keyboard Shortcuts</p>
           </div>
         </div>
         <button id="close-a11y-help-btn" class="p-2 rounded-lg glass-pill text-slate-400 hover:text-white" aria-label="Close Accessibility Guide">
@@ -654,85 +674,58 @@
         </button>
       </div>
 
-      <!-- Hands-Free Voice Commands Section -->
       <div class="space-y-3">
         <div class="flex items-center gap-2">
-          <span class="text-rose-400 font-bold text-sm">🎙️ Hands-Free Voice Commands (Web Speech API)</span>
-          <span class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-full font-mono">Press V to Toggle</span>
+          <span class="text-rose-400 font-bold text-sm">🎙️ Voice Commands (Press V to Toggle)</span>
         </div>
-        <p class="text-xs text-slate-300">Speak naturally into your microphone to control the interface without using hands:</p>
-        
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
             <strong class="text-rose-300 block mb-0.5">"Start" / "Begin" / "Play"</strong>
-            <span class="text-slate-400">Initiates or resumes the focus timer</span>
+            <span class="text-slate-400">Starts or resumes the focus timer</span>
           </div>
           <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
-            <strong class="text-rose-300 block mb-0.5">"Pause" / "Stop" / "Wait"</strong>
+            <strong class="text-rose-300 block mb-0.5">"Pause" / "Stop"</strong>
             <span class="text-slate-400">Pauses active timer sprint</span>
           </div>
           <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
-            <strong class="text-rose-300 block mb-0.5">"Reset" / "Restart"</strong>
-            <span class="text-slate-400">Resets timer to beginning duration</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
-            <strong class="text-rose-300 block mb-0.5">"Skip" / "Next"</strong>
-            <span class="text-slate-400">Advances to next focus or break cycle</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
-            <strong class="text-sky-300 block mb-0.5">"Focus" / "Short Break" / "Long Break"</strong>
-            <span class="text-slate-400">Switches between Pomodoro intervals</span>
+            <strong class="text-rose-300 block mb-0.5">"Reset" / "Skip"</strong>
+            <span class="text-slate-400">Resets timer or completes cycle</span>
           </div>
           <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
             <strong class="text-amber-300 block mb-0.5">"Morning" / "Afternoon" / "Night"</strong>
-            <span class="text-slate-400">Sets circadian context & blue light shield</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
-            <strong class="text-yellow-300 block mb-0.5">"High Contrast" / "Contrast"</strong>
-            <span class="text-slate-400">Toggles 7:1+ WCAG AAA Contrast Mode</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/10">
-            <strong class="text-purple-300 block mb-0.5">"Inspector" / "Close" / "Help"</strong>
-            <span class="text-slate-400">Navigates inspector panel & dialogues</span>
+            <span class="text-slate-400">Switches circadian theme</span>
           </div>
         </div>
       </div>
 
-      <!-- Keyboard & Switch Navigation Shortcuts -->
       <div class="space-y-3 pt-2 border-t border-white/10">
-        <div class="flex items-center gap-2">
-          <span class="text-yellow-400 font-bold text-sm">⌨️ Keyboard & Switch Access Shortcuts</span>
-        </div>
+        <span class="text-yellow-400 font-bold text-sm block">⌨️ Keyboard Shortcuts</span>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
           <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">Space</span> <span class="text-slate-300">Start/Pause</span></div>
-          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">V</span> <span class="text-slate-300">Voice Toggle</span></div>
-          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">C</span> <span class="text-slate-300">High Contrast</span></div>
-          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">F</span> <span class="text-slate-300">Font Scaling</span></div>
-          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">R</span> <span class="text-slate-300">Reset Timer</span></div>
-          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">S</span> <span class="text-slate-300">Skip Cycle</span></div>
-          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">I</span> <span class="text-slate-300">Inspector</span></div>
-          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">?</span> <span class="text-slate-300">Help Dialog</span></div>
+          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">V</span> <span class="text-slate-300">Voice</span></div>
+          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">C</span> <span class="text-slate-300">Contrast</span></div>
+          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">F</span> <span class="text-slate-300">Font Size</span></div>
+          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">R</span> <span class="text-slate-300">Reset</span></div>
+          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">S</span> <span class="text-slate-300">Complete</span></div>
+          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">M</span> <span class="text-slate-300">Mute</span></div>
+          <div class="p-2 rounded-lg bg-black/30 border border-white/5"><span class="text-yellow-400 font-bold">?</span> <span class="text-slate-300">Help</span></div>
         </div>
       </div>
-
-      <!-- Screen Reader & Cognitive Accommodations -->
-      <div class="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 text-xs text-slate-300 space-y-1">
-        <strong class="text-indigo-300 block">♿ Screen Reader & Cognitive Inclusivity:</strong>
-        <p>Dynamic live announcements (`aria-live`) announce timer progress at critical milestones without flooding. Visual focus indicators meet WCAG AAA visibility standards, and font sizes can be scaled dynamically up to 150%.</p>
-      </div>
-
     </div>
   </div>
 
   <!-- Modular Scripts Architecture -->
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/authService.js"></script>
+  <script src="js/dbService.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/contextEngine.js"></script>
   <script src="js/persuasiveEngine.js"></script>
-  <script src="js/hciInspector.js"></script>
   <script src="js/accessibilityEngine.js"></script>
   <script src="js/app.js"></script>
 
-  <!-- Progressive Web App Offline Service Worker Registration -->
+  <!-- Progressive Web App Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

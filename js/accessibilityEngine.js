@@ -231,14 +231,7 @@ class AccessibilityEngine {
       return;
     }
 
-    if (text.includes('inspector') || text.includes('telemetry') || text.includes('stats')) {
-      window.HCIInspector.toggle(true);
-      this.feedback('HCI Inspector drawer opened');
-      return;
-    }
-
     if (text.includes('close') || text.includes('exit') || text.includes('dismiss')) {
-      window.HCIInspector.toggle(false);
       window.PersuasiveEngine.closeNudgeModal();
       this.closeHelpModal();
       this.feedback('Panels closed');
@@ -425,8 +418,7 @@ class AccessibilityEngine {
   setupFocusTraps() {
     const modals = [
       { el: document.getElementById('a11y-help-modal'), close: () => this.closeHelpModal() },
-      { el: document.getElementById('nudge-modal-overlay'), close: () => window.PersuasiveEngine.closeNudgeModal() },
-      { el: document.getElementById('hci-inspector-drawer'), close: () => window.HCIInspector.toggle(false) }
+      { el: document.getElementById('nudge-modal-overlay'), close: () => window.PersuasiveEngine.closeNudgeModal() }
     ];
 
     window.addEventListener('keydown', (e) => {
