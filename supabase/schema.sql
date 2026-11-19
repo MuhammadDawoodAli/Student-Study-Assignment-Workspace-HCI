@@ -24,14 +24,17 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "Users can view their own profile" on public.profiles;
 create policy "Users can view their own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can insert their own profile" on public.profiles;
 create policy "Users can insert their own profile"
   on public.profiles for insert
   with check (auth.uid() = id);
 
+drop policy if exists "Users can update their own profile" on public.profiles;
 create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
@@ -75,18 +78,22 @@ create index if not exists idx_courses_user_id on public.courses(user_id);
 
 alter table public.courses enable row level security;
 
+drop policy if exists "Users can view their own courses" on public.courses;
 create policy "Users can view their own courses"
   on public.courses for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can create their own courses" on public.courses;
 create policy "Users can create their own courses"
   on public.courses for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update their own courses" on public.courses;
 create policy "Users can update their own courses"
   on public.courses for update
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can delete their own courses" on public.courses;
 create policy "Users can delete their own courses"
   on public.courses for delete
   using (auth.uid() = user_id);
@@ -115,18 +122,22 @@ create index if not exists idx_assignments_due_date on public.assignments(user_i
 
 alter table public.assignments enable row level security;
 
+drop policy if exists "Users can view their own assignments" on public.assignments;
 create policy "Users can view their own assignments"
   on public.assignments for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can create their own assignments" on public.assignments;
 create policy "Users can create their own assignments"
   on public.assignments for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update their own assignments" on public.assignments;
 create policy "Users can update their own assignments"
   on public.assignments for update
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can delete their own assignments" on public.assignments;
 create policy "Users can delete their own assignments"
   on public.assignments for delete
   using (auth.uid() = user_id);
@@ -149,14 +160,17 @@ create index if not exists idx_focus_sessions_user_date on public.focus_sessions
 
 alter table public.focus_sessions enable row level security;
 
+drop policy if exists "Users can view their own focus sessions" on public.focus_sessions;
 create policy "Users can view their own focus sessions"
   on public.focus_sessions for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert their own focus sessions" on public.focus_sessions;
 create policy "Users can insert their own focus sessions"
   on public.focus_sessions for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can delete their own focus sessions" on public.focus_sessions;
 create policy "Users can delete their own focus sessions"
   on public.focus_sessions for delete
   using (auth.uid() = user_id);
